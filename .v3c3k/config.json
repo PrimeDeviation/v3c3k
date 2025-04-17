@@ -1,0 +1,6 @@
+{
+  "provider": "mock",
+  "model": "mock-basic",
+  "apiKey": null,
+  "validationMode": "dev"
+}

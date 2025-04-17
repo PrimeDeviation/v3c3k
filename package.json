@@ -1,0 +1,46 @@
+{
+  "name": "v3c3k",
+  "version": "0.1.0",
+  "description": "V3C3K (VibeCheck) - AI-assisted product validation tool.",
+  "main": "dist/index.js",
+  "bin": {
+    "v3c3k": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PrimeDeviation/v3c3k.git"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "llm",
+    "validation",
+    "testing",
+    "devops"
+  ],
+  "author": "PrimeDeviation",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PrimeDeviation/v3c3k/issues"
+  },
+  "homepage": "https://github.com/PrimeDeviation/v3c3k#readme",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "commander": "^12.1.0",
+    "keytar": "^7.9.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/keytar": "^7.9.2",
+    "@types/node": "^20.14.11",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.3"
+  }
+}

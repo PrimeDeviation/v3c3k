@@ -1,0 +1,41 @@
+[
+  {
+    "id": "int_1744570976426",
+    "title": "When the add command is...",
+    "description": "When the add command is run with a description, it simulates LLM processing and saves a new intention to the intentions file.",
+    "when": "Trigger condition TBD",
+    "then": "Expected outcome TBD",
+    "logExpectations": [
+      "Intention saved successfully"
+    ],
+    "env": "dev",
+    "validationMethod": "logs",
+    "status": "valid"
+  },
+  {
+    "id": "int_1744570980907",
+    "title": "The list command loads intentions...",
+    "description": "The list command loads intentions from the file and prints a formatted summary table to the console.",
+    "when": "Trigger condition TBD",
+    "then": "Expected outcome TBD",
+    "logExpectations": [
+      "Saved Intentions:"
+    ],
+    "env": "dev",
+    "validationMethod": "logs",
+    "status": "valid"
+  },
+  {
+    "id": "int_1744570986362",
+    "title": "The validate command checks intentions...",
+    "description": "The validate command checks intentions against logs based on environment and log expectations, updating their status.",
+    "when": "Trigger condition TBD",
+    "then": "Expected outcome TBD",
+    "logExpectations": [
+      "Validation Summary"
+    ],
+    "env": "dev",
+    "validationMethod": "logs",
+    "status": "valid"
+  }
+]
