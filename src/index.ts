@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { ConfigManager } from './config/manager';
-import { FeatureStatus, FeatureValidation } from './types/feature';
+import { FeatureStatus, FeatureValidation, AIModelConfig, AIModelProvider } from './types/feature';
 
 const program = new Command();
 const configManager = new ConfigManager();
@@ -19,6 +19,7 @@ program
   .requiredOption('-d, --description <description>', 'Feature description')
   .option('--deps <ids>', 'Comma-separated list of feature IDs this feature depends on')
   .option('--validation <validation>', 'Simple validation string or JSON object')
+  .option('--ai-model <model>', 'AI model configuration as JSON object')
   .action((options) => {
     const dependencies = options.deps ? options.deps.split(',').map((id: string) => id.trim()) : [];
     let validation: FeatureValidation | undefined = undefined;
@@ -29,7 +30,16 @@ program
         validation = options.validation;
       }
     }
-    const feature = configManager.addFeature(options.title, options.description, dependencies, validation);
+    let aiModel: AIModelConfig | undefined = undefined;
+    if (options.aiModel) {
+      try {
+        aiModel = JSON.parse(options.aiModel);
+      } catch (e) {
+        console.error('\nError: AI model configuration must be a valid JSON object\n');
+        return;
+      }
+    }
+    const feature = configManager.addFeature(options.title, options.description, dependencies, validation, aiModel);
     console.log('Feature added:', feature);
   });
 
@@ -121,6 +131,42 @@ program
     const updatedFeature = configManager.updateFeatureValidation(options.title, validation);
     if (updatedFeature) {
       console.log('\nFeature validation updated:');
+      console.log(JSON.stringify(updatedFeature, null, 2));
+      console.log(); // Add newline at end
+    } else {
+      console.error(`\nError: No feature found with title "${options.title}"\n`);
+    }
+  });
+
+program
+  .command('ai-model')
+  .description('Update feature AI model configuration')
+  .requiredOption('-t, --title <title>', 'Feature title')
+  .requiredOption('--provider <provider>', 'AI model provider (anthropic, google, openai, deepseek, other)')
+  .requiredOption('--model <model>', 'Model name/identifier')
+  .option('--api-key <key>', 'API key for the model provider')
+  .option('--temperature <temp>', 'Temperature setting (0-1)', parseFloat)
+  .option('--max-tokens <tokens>', 'Maximum tokens to generate', parseInt)
+  .option('--custom-endpoint <url>', 'Custom API endpoint URL')
+  .action((options) => {
+    const provider = options.provider as AIModelProvider;
+    if (!['anthropic', 'google', 'openai', 'deepseek', 'other'].includes(provider)) {
+      console.error('\nError: Provider must be one of: anthropic, google, openai, deepseek, other\n');
+      return;
+    }
+
+    const aiModel: AIModelConfig = {
+      provider,
+      model: options.model,
+      ...(options.apiKey ? { apiKey: options.apiKey } : {}),
+      ...(options.temperature ? { temperature: options.temperature } : {}),
+      ...(options.maxTokens ? { maxTokens: options.maxTokens } : {}),
+      ...(options.customEndpoint ? { customEndpoint: options.customEndpoint } : {})
+    };
+
+    const updatedFeature = configManager.updateFeatureAIModel(options.title, aiModel);
+    if (updatedFeature) {
+      console.log('\nFeature AI model updated:');
       console.log(JSON.stringify(updatedFeature, null, 2));
       console.log(); // Add newline at end
     } else {

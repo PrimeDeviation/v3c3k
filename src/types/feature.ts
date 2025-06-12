@@ -5,6 +5,17 @@ export type FeatureValidation = string | {
   testCases?: string[];
 };
 
+export type AIModelProvider = 'anthropic' | 'google' | 'openai' | 'deepseek' | 'other';
+
+export interface AIModelConfig {
+  provider: AIModelProvider;
+  model: string;
+  apiKey?: string;
+  temperature?: number;
+  maxTokens?: number;
+  customEndpoint?: string;
+}
+
 export interface FeatureItem {
   id: string;
   title: string;
@@ -14,4 +25,5 @@ export interface FeatureItem {
   updatedAt: string;
   dependencies: string[]; // Array of feature IDs
   validation?: FeatureValidation;
+  aiModel?: AIModelConfig;
 } 

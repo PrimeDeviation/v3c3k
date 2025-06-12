@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { FeatureItem, FeatureStatus, FeatureValidation } from '../types/feature';
+import { FeatureItem, FeatureStatus, FeatureValidation, AIModelConfig } from '../types/feature';
 import { v4 as uuidv4 } from 'uuid';
 
 const CONFIG_DIR = '.v3c3k';
@@ -34,7 +34,7 @@ export class ConfigManager {
     fs.writeFileSync(this.featuresPath, JSON.stringify(features, null, 2));
   }
 
-  addFeature(title: string, description: string, dependencies?: string[], validation?: FeatureValidation): FeatureItem {
+  addFeature(title: string, description: string, dependencies?: string[], validation?: FeatureValidation, aiModel?: AIModelConfig): FeatureItem {
     const features = this.readFeatures();
     const newFeature: FeatureItem = {
       id: uuidv4(),
@@ -44,7 +44,8 @@ export class ConfigManager {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       dependencies: dependencies ?? [],
-      ...(validation ? { validation } : {})
+      ...(validation ? { validation } : {}),
+      ...(aiModel ? { aiModel } : {})
     };
     
     features.push(newFeature);
@@ -82,7 +83,8 @@ export class ConfigManager {
       createdAt: feature.createdAt,
       updatedAt: new Date().toISOString(),
       dependencies: feature.dependencies ?? [],
-      ...(feature.validation ? { validation: feature.validation } : {})
+      ...(feature.validation ? { validation: feature.validation } : {}),
+      ...(feature.aiModel ? { aiModel: feature.aiModel } : {})
     };
 
     this.writeFeatures(features);
@@ -121,6 +123,25 @@ export class ConfigManager {
     features[featureIndex] = {
       ...feature,
       validation,
+      updatedAt: new Date().toISOString()
+    };
+    this.writeFeatures(features);
+    return features[featureIndex];
+  }
+
+  updateFeatureAIModel(title: string, aiModel: AIModelConfig): FeatureItem | undefined {
+    const features = this.readFeatures();
+    const featureIndex = features.findIndex(feature => feature.title.toLowerCase() === title.toLowerCase());
+    if (featureIndex === -1) {
+      return undefined;
+    }
+    const feature = features[featureIndex];
+    if (!feature) {
+      return undefined;
+    }
+    features[featureIndex] = {
+      ...feature,
+      aiModel,
       updatedAt: new Date().toISOString()
     };
     this.writeFeatures(features);
