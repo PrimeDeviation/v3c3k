@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { ConfigManager } from './config/manager';
-import { FeatureStatus } from './types/feature';
+import { FeatureStatus, FeatureValidation } from './types/feature';
 
 const program = new Command();
 const configManager = new ConfigManager();
@@ -18,9 +18,18 @@ program
   .requiredOption('-t, --title <title>', 'Feature title')
   .requiredOption('-d, --description <description>', 'Feature description')
   .option('--deps <ids>', 'Comma-separated list of feature IDs this feature depends on')
+  .option('--validation <validation>', 'Simple validation string or JSON object')
   .action((options) => {
     const dependencies = options.deps ? options.deps.split(',').map((id: string) => id.trim()) : [];
-    const feature = configManager.addFeature(options.title, options.description, dependencies);
+    let validation: FeatureValidation | undefined = undefined;
+    if (options.validation) {
+      try {
+        validation = JSON.parse(options.validation);
+      } catch {
+        validation = options.validation;
+      }
+    }
+    const feature = configManager.addFeature(options.title, options.description, dependencies, validation);
     console.log('Feature added:', feature);
   });
 
@@ -90,6 +99,28 @@ program
     const updatedFeature = configManager.updateFeatureDependencies(options.title, dependencies);
     if (updatedFeature) {
       console.log('\nFeature dependencies updated:');
+      console.log(JSON.stringify(updatedFeature, null, 2));
+      console.log(); // Add newline at end
+    } else {
+      console.error(`\nError: No feature found with title "${options.title}"\n`);
+    }
+  });
+
+program
+  .command('validation')
+  .description('Update feature validation rules')
+  .requiredOption('-t, --title <title>', 'Feature title')
+  .requiredOption('--validation <validation>', 'Validation string or JSON object')
+  .action((options) => {
+    let validation: FeatureValidation;
+    try {
+      validation = JSON.parse(options.validation);
+    } catch {
+      validation = options.validation;
+    }
+    const updatedFeature = configManager.updateFeatureValidation(options.title, validation);
+    if (updatedFeature) {
+      console.log('\nFeature validation updated:');
       console.log(JSON.stringify(updatedFeature, null, 2));
       console.log(); // Add newline at end
     } else {

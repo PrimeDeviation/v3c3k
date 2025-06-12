@@ -41,7 +41,15 @@
     "description": "Define and manage validation rules for features, including acceptance criteria and test cases",
     "status": "todo",
     "createdAt": "2025-06-12T02:40:16.275Z",
-    "updatedAt": "2025-06-12T02:40:16.275Z"
+    "updatedAt": "2025-06-12T02:46:34.005Z",
+    "validation": {
+      "acceptanceCriteria": [
+        "All features must have a status"
+      ],
+      "testCases": [
+        "Add a feature and check status"
+      ]
+    }
   },
   {
     "id": "55df4784-d1f9-4766-8ad2-df8985d6828e",
@@ -49,6 +57,7 @@
     "description": "Integrate AI capabilities for feature analysis, validation suggestions, and automated testing",
     "status": "todo",
     "createdAt": "2025-06-12T02:40:25.374Z",
-    "updatedAt": "2025-06-12T02:40:25.374Z"
+    "updatedAt": "2025-06-12T02:46:40.572Z",
+    "validation": "Basic smoke test only"
   }
 ]
