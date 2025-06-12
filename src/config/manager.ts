@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { FeatureItem } from '../types/feature';
+import { FeatureItem, FeatureStatus } from '../types/feature';
 import { v4 as uuidv4 } from 'uuid';
 
 const CONFIG_DIR = '.v3c3k';
@@ -57,5 +57,31 @@ export class ConfigManager {
   getFeatureByTitle(title: string): FeatureItem | undefined {
     const features = this.readFeatures();
     return features.find(feature => feature.title.toLowerCase() === title.toLowerCase());
+  }
+
+  updateFeatureStatus(title: string, status: FeatureStatus): FeatureItem | undefined {
+    const features = this.readFeatures();
+    const featureIndex = features.findIndex(feature => feature.title.toLowerCase() === title.toLowerCase());
+    
+    if (featureIndex === -1) {
+      return undefined;
+    }
+
+    const feature = features[featureIndex];
+    if (!feature) {
+      return undefined;
+    }
+
+    features[featureIndex] = {
+      id: feature.id,
+      title: feature.title,
+      description: feature.description,
+      status,
+      createdAt: feature.createdAt,
+      updatedAt: new Date().toISOString()
+    };
+
+    this.writeFeatures(features);
+    return features[featureIndex];
   }
 } 

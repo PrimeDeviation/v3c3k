@@ -6,5 +6,45 @@
     "status": "todo",
     "createdAt": "2025-06-12T02:35:30.751Z",
     "updatedAt": "2025-06-12T02:35:30.751Z"
+  },
+  {
+    "id": "ea214eb9-2eb4-4146-b1f9-e94240a72bb6",
+    "title": "Feature Management",
+    "description": "Core functionality for managing feature items with add, list, and view commands",
+    "status": "todo",
+    "createdAt": "2025-06-12T02:39:47.166Z",
+    "updatedAt": "2025-06-12T02:39:47.166Z"
+  },
+  {
+    "id": "abcc4ee6-4acd-4919-b654-fc818cb4b26d",
+    "title": "Feature Status Management",
+    "description": "Add ability to update feature status (todo, in_progress, done) and track progress",
+    "status": "in_progress",
+    "createdAt": "2025-06-12T02:39:57.717Z",
+    "updatedAt": "2025-06-12T02:42:37.297Z"
+  },
+  {
+    "id": "60737473-703e-4aa7-a772-0d84035e330a",
+    "title": "Feature Dependencies",
+    "description": "Track relationships between features and their dependencies",
+    "status": "todo",
+    "createdAt": "2025-06-12T02:40:08.869Z",
+    "updatedAt": "2025-06-12T02:40:08.869Z"
+  },
+  {
+    "id": "344f173b-c0ec-4eb5-a32d-2f1a81d17075",
+    "title": "Validation Rules",
+    "description": "Define and manage validation rules for features, including acceptance criteria and test cases",
+    "status": "todo",
+    "createdAt": "2025-06-12T02:40:16.275Z",
+    "updatedAt": "2025-06-12T02:40:16.275Z"
+  },
+  {
+    "id": "55df4784-d1f9-4766-8ad2-df8985d6828e",
+    "title": "AI Integration",
+    "description": "Integrate AI capabilities for feature analysis, validation suggestions, and automated testing",
+    "status": "todo",
+    "createdAt": "2025-06-12T02:40:25.374Z",
+    "updatedAt": "2025-06-12T02:40:25.374Z"
   }
 ]

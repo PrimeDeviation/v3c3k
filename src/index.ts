@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { ConfigManager } from './config/manager';
+import { FeatureStatus } from './types/feature';
 
 const program = new Command();
 const configManager = new ConfigManager();
@@ -52,6 +53,28 @@ program
       console.log('\nAll Features:');
       console.log(JSON.stringify(features, null, 2));
       console.log(); // Add newline at end
+    }
+  });
+
+program
+  .command('status')
+  .description('Update feature status')
+  .requiredOption('-t, --title <title>', 'Feature title')
+  .requiredOption('-s, --status <status>', 'New status (todo, in_progress, done)')
+  .action((options) => {
+    const status = options.status as FeatureStatus;
+    if (!['todo', 'in_progress', 'done'].includes(status)) {
+      console.error('\nError: Status must be one of: todo, in_progress, done\n');
+      return;
+    }
+
+    const updatedFeature = configManager.updateFeatureStatus(options.title, status);
+    if (updatedFeature) {
+      console.log('\nFeature status updated:');
+      console.log(JSON.stringify(updatedFeature, null, 2));
+      console.log(); // Add newline at end
+    } else {
+      console.error(`\nError: No feature found with title "${options.title}"\n`);
     }
   });
 
