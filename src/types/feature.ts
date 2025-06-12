@@ -7,4 +7,5 @@ export interface FeatureItem {
   status: FeatureStatus;
   createdAt: string;
   updatedAt: string;
+  dependencies: string[]; // Array of feature IDs
 } 

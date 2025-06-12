@@ -34,7 +34,7 @@ export class ConfigManager {
     fs.writeFileSync(this.featuresPath, JSON.stringify(features, null, 2));
   }
 
-  addFeature(title: string, description: string): FeatureItem {
+  addFeature(title: string, description: string, dependencies?: string[]): FeatureItem {
     const features = this.readFeatures();
     const newFeature: FeatureItem = {
       id: uuidv4(),
@@ -42,7 +42,8 @@ export class ConfigManager {
       description,
       status: 'todo',
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      dependencies: dependencies ?? []
     };
     
     features.push(newFeature);
@@ -78,9 +79,29 @@ export class ConfigManager {
       description: feature.description,
       status,
       createdAt: feature.createdAt,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      dependencies: feature.dependencies ?? []
     };
 
+    this.writeFeatures(features);
+    return features[featureIndex];
+  }
+
+  updateFeatureDependencies(title: string, dependencies: string[]): FeatureItem | undefined {
+    const features = this.readFeatures();
+    const featureIndex = features.findIndex(feature => feature.title.toLowerCase() === title.toLowerCase());
+    if (featureIndex === -1) {
+      return undefined;
+    }
+    const feature = features[featureIndex];
+    if (!feature) {
+      return undefined;
+    }
+    features[featureIndex] = {
+      ...feature,
+      dependencies,
+      updatedAt: new Date().toISOString()
+    };
     this.writeFeatures(features);
     return features[featureIndex];
   }

@@ -17,8 +17,10 @@ program
   .description('Add a new feature item')
   .requiredOption('-t, --title <title>', 'Feature title')
   .requiredOption('-d, --description <description>', 'Feature description')
+  .option('--deps <ids>', 'Comma-separated list of feature IDs this feature depends on')
   .action((options) => {
-    const feature = configManager.addFeature(options.title, options.description);
+    const dependencies = options.deps ? options.deps.split(',').map((id: string) => id.trim()) : [];
+    const feature = configManager.addFeature(options.title, options.description, dependencies);
     console.log('Feature added:', feature);
   });
 
@@ -71,6 +73,23 @@ program
     const updatedFeature = configManager.updateFeatureStatus(options.title, status);
     if (updatedFeature) {
       console.log('\nFeature status updated:');
+      console.log(JSON.stringify(updatedFeature, null, 2));
+      console.log(); // Add newline at end
+    } else {
+      console.error(`\nError: No feature found with title "${options.title}"\n`);
+    }
+  });
+
+program
+  .command('dependencies')
+  .description('Update feature dependencies')
+  .requiredOption('-t, --title <title>', 'Feature title')
+  .requiredOption('--deps <ids>', 'Comma-separated list of feature IDs this feature depends on')
+  .action((options) => {
+    const dependencies = options.deps.split(',').map((id: string) => id.trim());
+    const updatedFeature = configManager.updateFeatureDependencies(options.title, dependencies);
+    if (updatedFeature) {
+      console.log('\nFeature dependencies updated:');
       console.log(JSON.stringify(updatedFeature, null, 2));
       console.log(); // Add newline at end
     } else {
