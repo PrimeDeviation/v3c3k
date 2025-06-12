@@ -53,4 +53,9 @@ export class ConfigManager {
   listFeatures(): FeatureItem[] {
     return this.readFeatures();
   }
+
+  getFeatureByTitle(title: string): FeatureItem | undefined {
+    const features = this.readFeatures();
+    return features.find(feature => feature.title.toLowerCase() === title.toLowerCase());
+  }
 } 

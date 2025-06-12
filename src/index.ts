@@ -23,10 +23,36 @@ program
 
 program
   .command('list')
-  .description('List all feature items')
+  .description('List all feature items (titles only)')
   .action(() => {
     const features = configManager.listFeatures();
-    console.log('Features:', features);
+    console.log('\nFeatures:');
+    features.forEach(feature => {
+      console.log(`- ${feature.title} (${feature.status})`);
+    });
+    console.log(); // Add newline at end
+  });
+
+program
+  .command('view')
+  .description('View detailed information about features')
+  .argument('[title]', 'Optional: Feature title to view specific feature')
+  .action((title) => {
+    if (title) {
+      const feature = configManager.getFeatureByTitle(title);
+      if (feature) {
+        console.log('\nFeature Details:');
+        console.log(JSON.stringify(feature, null, 2));
+        console.log(); // Add newline at end
+      } else {
+        console.error(`\nError: No feature found with title "${title}"\n`);
+      }
+    } else {
+      const features = configManager.listFeatures();
+      console.log('\nAll Features:');
+      console.log(JSON.stringify(features, null, 2));
+      console.log(); // Add newline at end
+    }
   });
 
 program.parse();
