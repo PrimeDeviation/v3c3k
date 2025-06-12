@@ -131,3 +131,27 @@ dist
 
 # Compiled JavaScript files (assuming source is elsewhere, e.g., TS)
 dist/
+
+# New directory
+.v3c3k/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Configuration and secrets
+.v3c3k/
+*.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
