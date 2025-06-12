@@ -65,5 +65,14 @@
       "temperature": 0.7,
       "maxTokens": 4096
     }
+  },
+  {
+    "id": "70301c4d-48f6-4929-9027-f7b2d96b869b",
+    "title": "Test Feature",
+    "description": "Testing .env creation",
+    "status": "todo",
+    "createdAt": "2025-06-12T02:53:18.581Z",
+    "updatedAt": "2025-06-12T02:53:18.581Z",
+    "dependencies": []
   }
 ]

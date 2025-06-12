@@ -132,9 +132,6 @@ dist
 # Compiled JavaScript files (assuming source is elsewhere, e.g., TS)
 dist/
 
-# New directory
-.v3c3k/
-
 # Dependencies
 node_modules/
 
@@ -142,7 +139,6 @@ node_modules/
 dist/
 
 # Configuration and secrets
-.v3c3k/
 *.env
 .env.*
 

@@ -5,14 +5,23 @@ import { v4 as uuidv4 } from 'uuid';
 
 const CONFIG_DIR = '.v3c3k';
 const FEATURES_FILE = 'features.json';
+const CONFIG_FILE = 'config.json';
+const INTENTIONS_FILE = 'intentions.json';
+const ENV_FILE = '.env';
 
 export class ConfigManager {
   private configPath: string;
   private featuresPath: string;
+  private configFilePath: string;
+  private intentionsPath: string;
+  private envPath: string;
 
   constructor() {
     this.configPath = path.join(process.cwd(), CONFIG_DIR);
     this.featuresPath = path.join(this.configPath, FEATURES_FILE);
+    this.configFilePath = path.join(this.configPath, CONFIG_FILE);
+    this.intentionsPath = path.join(this.configPath, INTENTIONS_FILE);
+    this.envPath = path.join(process.cwd(), ENV_FILE);
     this.initializeConfig();
   }
 
@@ -22,6 +31,40 @@ export class ConfigManager {
     }
     if (!fs.existsSync(this.featuresPath)) {
       fs.writeFileSync(this.featuresPath, JSON.stringify([], null, 2));
+    }
+    if (!fs.existsSync(this.configFilePath)) {
+      fs.writeFileSync(this.configFilePath, JSON.stringify({
+        provider: "mock",
+        model: "mock-basic",
+        validationMode: "dev"
+      }, null, 2));
+    }
+    if (!fs.existsSync(this.intentionsPath)) {
+      fs.writeFileSync(this.intentionsPath, JSON.stringify([], null, 2));
+    }
+    if (!fs.existsSync(this.envPath)) {
+      const envTemplate = `# Anthropic (Claude)
+ANTHROPIC_API_KEY=
+
+# Google (Gemini)
+GOOGLE_API_KEY=
+
+# OpenAI
+OPENAI_API_KEY=
+
+# DeepSeek
+DEEPSEEK_API_KEY=
+
+# Optional: Custom endpoints
+ANTHROPIC_API_ENDPOINT=
+GOOGLE_API_ENDPOINT=
+OPENAI_API_ENDPOINT=
+DEEPSEEK_API_ENDPOINT=
+
+# Provider-specific API keys
+PROVIDER_API_KEY=
+`;
+      fs.writeFileSync(this.envPath, envTemplate);
     }
   }
 
