@@ -11,7 +11,23 @@ interface CLIResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
+  status?: string;
+  progress?: {
+    current: number;
+    total: number;
+    message: string;
+  };
 }
+
+// Exit codes
+const EXIT_CODES = {
+  SUCCESS: 0,
+  INVALID_INPUT: 1,
+  FEATURE_NOT_FOUND: 2,
+  VALIDATION_ERROR: 3,
+  AI_ERROR: 4,
+  SYSTEM_ERROR: 5
+};
 
 function outputResponse<T>(response: CLIResponse<T>, json: boolean) {
   if (json) {
@@ -25,13 +41,40 @@ function outputResponse<T>(response: CLIResponse<T>, json: boolean) {
       console.error(`\nError: ${response.error}\n`);
     }
   }
+  
+  // Set appropriate exit code
+  if (!response.success) {
+    switch (response.status) {
+      case 'invalid_input':
+        process.exit(EXIT_CODES.INVALID_INPUT);
+      case 'feature_not_found':
+        process.exit(EXIT_CODES.FEATURE_NOT_FOUND);
+      case 'validation_error':
+        process.exit(EXIT_CODES.VALIDATION_ERROR);
+      case 'ai_error':
+        process.exit(EXIT_CODES.AI_ERROR);
+      default:
+        process.exit(EXIT_CODES.SYSTEM_ERROR);
+    }
+  }
+}
+
+function updateProgress(current: number, total: number, message: string, json: boolean) {
+  const progress = { current, total, message };
+  if (json) {
+    console.log(JSON.stringify({ success: true, progress }));
+  } else {
+    const percentage = Math.round((current / total) * 100);
+    console.log(`\n[${percentage}%] ${message}\n`);
+  }
 }
 
 program
   .name('v3c3k')
   .description('V3C3K - AI-assisted product validation tool')
   .version('0.1.0')
-  .option('--json', 'Output in JSON format');
+  .option('--json', 'Output in JSON format')
+  .option('--machine', 'Output in machine-readable format');
 
 program
   .command('add')
@@ -42,6 +85,7 @@ program
   .option('--validation <validation>', 'Simple validation string or JSON object')
   .option('--ai-model <model>', 'AI model configuration as JSON object')
   .action((options) => {
+    updateProgress(1, 3, 'Validating input', options.json);
     const dependencies = options.deps ? options.deps.split(',').map((id: string) => id.trim()) : [];
     let validation: FeatureValidation | undefined = undefined;
     if (options.validation) {
@@ -56,11 +100,19 @@ program
       try {
         aiModel = JSON.parse(options.aiModel);
       } catch (e) {
-        outputResponse({ success: false, error: 'AI model configuration must be a valid JSON object' }, options.json);
+        outputResponse({ 
+          success: false, 
+          error: 'AI model configuration must be a valid JSON object',
+          status: 'invalid_input'
+        }, options.json);
         return;
       }
     }
+    
+    updateProgress(2, 3, 'Creating feature', options.json);
     const feature = configManager.addFeature(options.title, options.description, dependencies, validation, aiModel);
+    
+    updateProgress(3, 3, 'Feature created successfully', options.json);
     outputResponse({ success: true, data: feature }, options.json);
   });
 
@@ -184,6 +236,37 @@ program
       outputResponse({ success: true, data: updatedFeature }, options.json);
     } else {
       outputResponse({ success: false, error: `No feature found with title "${options.title}"` }, options.json);
+    }
+  });
+
+program
+  .command('remove')
+  .description('Remove a feature')
+  .requiredOption('-t, --title <title>', 'Feature title')
+  .option('--force', 'Force removal even if feature has dependencies')
+  .action((options) => {
+    const result = configManager.removeFeature(options.title);
+    if (result.success) {
+      outputResponse({ 
+        success: true, 
+        data: { message: `Feature "${options.title}" removed successfully` } 
+      }, options.json);
+    } else {
+      if (result.dependentFeatures && !options.force) {
+        outputResponse({ 
+          success: false, 
+          error: result.error || 'Unknown error',
+          data: { 
+            dependentFeatures: result.dependentFeatures,
+            message: 'Use --force to remove anyway (not recommended)'
+          }
+        }, options.json);
+      } else {
+        outputResponse({ 
+          success: false, 
+          error: result.error || 'Unknown error'
+        }, options.json);
+      }
     }
   });
 

@@ -190,4 +190,33 @@ PROVIDER_API_KEY=
     this.writeFeatures(features);
     return features[featureIndex];
   }
+
+  removeFeature(title: string): { success: boolean; error?: string; dependentFeatures?: string[] } {
+    const features = this.readFeatures();
+    const featureIndex = features.findIndex(feature => feature.title.toLowerCase() === title.toLowerCase());
+    
+    if (featureIndex === -1) {
+      return { success: false, error: `No feature found with title "${title}"` };
+    }
+
+    const featureToRemove = features[featureIndex];
+    
+    // Check for dependent features
+    const dependentFeatures = features.filter(f => 
+      f.dependencies && f.dependencies.includes(featureToRemove.id)
+    );
+
+    if (dependentFeatures.length > 0) {
+      return { 
+        success: false, 
+        error: `Cannot remove feature "${title}" as it is a dependency for other features`,
+        dependentFeatures: dependentFeatures.map(f => f.title)
+      };
+    }
+
+    // Remove the feature
+    features.splice(featureIndex, 1);
+    this.writeFeatures(features);
+    return { success: true };
+  }
 } 
