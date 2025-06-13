@@ -2,11 +2,19 @@ import * as vscode from 'vscode';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { ApiKeyManager } from './apiKeyManager';
+import { FeatureTreeProvider, FeatureTreeItem } from './featureTreeProvider';
 
 const execAsync = promisify(exec);
 
 export async function activate(context: vscode.ExtensionContext) {
     const apiKeyManager = ApiKeyManager.getInstance(context);
+    const featureTreeProvider = new FeatureTreeProvider();
+
+    // Register tree view
+    const treeView = vscode.window.createTreeView('v3c3kFeatures', {
+        treeDataProvider: featureTreeProvider,
+        showCollapseAll: true
+    });
 
     // Check if v3c3k CLI is installed
     try {
@@ -72,7 +80,91 @@ export async function activate(context: vscode.ExtensionContext) {
         );
     });
 
-    context.subscriptions.push(checkCLI, setApiKey, checkApiKey);
+    let addFeature = vscode.commands.registerCommand('v3c3k.addFeature', async () => {
+        const name = await vscode.window.showInputBox({
+            prompt: 'Enter feature name',
+            placeHolder: 'Feature name'
+        });
+        if (!name) return;
+
+        const description = await vscode.window.showInputBox({
+            prompt: 'Enter feature description',
+            placeHolder: 'Feature description'
+        });
+        if (!description) return;
+
+        try {
+            await execAsync(`v3c3k add "${name}" "${description}"`);
+            featureTreeProvider.refresh();
+            vscode.window.showInformationMessage(`Feature "${name}" added successfully`);
+        } catch (error) {
+            vscode.window.showErrorMessage('Failed to add feature');
+        }
+    });
+
+    let refreshFeatures = vscode.commands.registerCommand('v3c3k.refreshFeatures', () => {
+        featureTreeProvider.refresh();
+    });
+
+    let viewFeature = vscode.commands.registerCommand('v3c3k.viewFeature', async (item: FeatureTreeItem) => {
+        try {
+            const { stdout } = await execAsync(`v3c3k view "${item.label}"`);
+            const feature = JSON.parse(stdout);
+            
+            const panel = vscode.window.createWebviewPanel(
+                'featureDetails',
+                `Feature: ${feature.name}`,
+                vscode.ViewColumn.One,
+                {}
+            );
+
+            panel.webview.html = getFeatureDetailsHtml(feature);
+        } catch (error) {
+            vscode.window.showErrorMessage('Failed to view feature details');
+        }
+    });
+
+    context.subscriptions.push(
+        checkCLI,
+        setApiKey,
+        checkApiKey,
+        addFeature,
+        refreshFeatures,
+        treeView
+    );
+}
+
+function getFeatureDetailsHtml(feature: any): string {
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { padding: 20px; font-family: var(--vscode-font-family); }
+                h1 { color: var(--vscode-editor-foreground); }
+                .detail { margin: 10px 0; }
+                .label { font-weight: bold; }
+            </style>
+        </head>
+        <body>
+            <h1>${feature.name}</h1>
+            <div class="detail">
+                <span class="label">Status:</span> ${feature.status}
+            </div>
+            <div class="detail">
+                <span class="label">Description:</span> ${feature.description}
+            </div>
+            ${feature.dependencies ? `
+            <div class="detail">
+                <span class="label">Dependencies:</span>
+                <ul>
+                    ${feature.dependencies.map((dep: string) => `<li>${dep}</li>`).join('')}
+                </ul>
+            </div>
+            ` : ''}
+        </body>
+        </html>
+    `;
 }
 
 export function deactivate() {} 

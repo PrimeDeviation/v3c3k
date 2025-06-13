@@ -12,7 +12,11 @@
   "activationEvents": [
     "onCommand:v3c3k.checkCLI",
     "onCommand:v3c3k.setApiKey",
-    "onCommand:v3c3k.checkApiKey"
+    "onCommand:v3c3k.checkApiKey",
+    "onCommand:v3c3k.addFeature",
+    "onCommand:v3c3k.refreshFeatures",
+    "onCommand:v3c3k.viewFeature",
+    "onView:v3c3kFeatures"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -28,8 +32,28 @@
       {
         "command": "v3c3k.checkApiKey",
         "title": "V3C3K: Check AI Model API Key"
+      },
+      {
+        "command": "v3c3k.addFeature",
+        "title": "V3C3K: Add Feature"
+      },
+      {
+        "command": "v3c3k.refreshFeatures",
+        "title": "V3C3K: Refresh Features"
+      },
+      {
+        "command": "v3c3k.viewFeature",
+        "title": "V3C3K: View Feature Details"
       }
-    ]
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "v3c3kFeatures",
+          "name": "V3C3K Features"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
