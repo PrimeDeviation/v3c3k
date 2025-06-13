@@ -200,6 +200,9 @@ PROVIDER_API_KEY=
     }
 
     const featureToRemove = features[featureIndex];
+    if (!featureToRemove) {
+      return { success: false, error: `Error accessing feature "${title}"` };
+    }
     
     // Check for dependent features
     const dependentFeatures = features.filter(f => 

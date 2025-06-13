@@ -2,7 +2,7 @@
 
 import { Command } from 'commander';
 import { ConfigManager } from './config/manager';
-import { FeatureStatus, FeatureValidation, AIModelConfig, AIModelProvider, FeatureItem } from './types/feature';
+import { FeatureStatus, FeatureValidation, AIModelConfig, AIModelProvider } from './types/feature';
 
 const program = new Command();
 const configManager = new ConfigManager();

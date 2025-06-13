@@ -1,0 +1,45 @@
+{
+  "name": "vscode-v3c3k",
+  "displayName": "V3C3K",
+  "description": "VSCode extension for V3C3K - AI-assisted Product Validation Tool",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:v3c3k.addFeature",
+    "onCommand:v3c3k.listFeatures",
+    "onCommand:v3c3k.viewFeature"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "v3c3k.addFeature",
+        "title": "V3C3K: Add Feature"
+      },
+      {
+        "command": "v3c3k.listFeatures",
+        "title": "V3C3K: List Features"
+      },
+      {
+        "command": "v3c3k.viewFeature",
+        "title": "V3C3K: View Feature"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.0.0"
+  }
+}
