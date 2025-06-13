@@ -3,12 +3,15 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { ApiKeyManager } from './apiKeyManager';
 import { FeatureTreeProvider, FeatureTreeItem } from './featureTreeProvider';
+import { ProjectStructureManager } from './projectStructureManager';
+import { StructureValidationPanel } from './structureValidationPanel';
 
 const execAsync = promisify(exec);
 
 export async function activate(context: vscode.ExtensionContext) {
     const apiKeyManager = ApiKeyManager.getInstance(context);
     const featureTreeProvider = new FeatureTreeProvider();
+    const projectStructureManager = ProjectStructureManager.getInstance(context);
 
     // Register tree view
     const treeView = vscode.window.createTreeView('v3c3kFeatures', {
@@ -124,13 +127,77 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    let validateStructure = vscode.commands.registerCommand('v3c3k.validateStructure', async () => {
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (!workspaceRoot) {
+            vscode.window.showErrorMessage('No workspace folder found');
+            return;
+        }
+
+        try {
+            const result = await projectStructureManager.validateStructure(workspaceRoot);
+            StructureValidationPanel.createOrShow(context.extensionUri, result);
+        } catch (error) {
+            vscode.window.showErrorMessage('Failed to validate project structure');
+        }
+    });
+
+    let createStructure = vscode.commands.registerCommand('v3c3k.createStructure', async () => {
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (!workspaceRoot) {
+            vscode.window.showErrorMessage('No workspace folder found');
+            return;
+        }
+
+        try {
+            await projectStructureManager.createStructure(workspaceRoot);
+            vscode.window.showInformationMessage('Project structure created successfully');
+        } catch (error) {
+            vscode.window.showErrorMessage('Failed to create project structure');
+        }
+    });
+
+    let updateStructure = vscode.commands.registerCommand('v3c3k.updateStructure', async () => {
+        const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (!workspaceRoot) {
+            vscode.window.showErrorMessage('No workspace folder found');
+            return;
+        }
+
+        try {
+            const template = await projectStructureManager.getStructureTemplate();
+            const document = await vscode.workspace.openTextDocument({
+                content: JSON.stringify(template, null, 2),
+                language: 'json'
+            });
+            await vscode.window.showTextDocument(document);
+
+            const saveDisposable = vscode.workspace.onDidSaveTextDocument(async (doc) => {
+                if (doc === document) {
+                    try {
+                        await projectStructureManager.updateStructure(workspaceRoot, JSON.parse(doc.getText()));
+                        vscode.window.showInformationMessage('Project structure updated successfully');
+                        saveDisposable.dispose();
+                    } catch (error) {
+                        vscode.window.showErrorMessage('Failed to update project structure');
+                    }
+                }
+            });
+        } catch (error) {
+            vscode.window.showErrorMessage('Failed to get structure template');
+        }
+    });
+
     context.subscriptions.push(
         checkCLI,
         setApiKey,
         checkApiKey,
         addFeature,
         refreshFeatures,
-        treeView
+        treeView,
+        validateStructure,
+        createStructure,
+        updateStructure
     );
 }
 

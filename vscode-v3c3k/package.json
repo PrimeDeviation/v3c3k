@@ -16,6 +16,9 @@
     "onCommand:v3c3k.addFeature",
     "onCommand:v3c3k.refreshFeatures",
     "onCommand:v3c3k.viewFeature",
+    "onCommand:v3c3k.validateStructure",
+    "onCommand:v3c3k.createStructure",
+    "onCommand:v3c3k.updateStructure",
     "onView:v3c3kFeatures"
   ],
   "main": "./out/extension.js",
@@ -44,6 +47,18 @@
       {
         "command": "v3c3k.viewFeature",
         "title": "V3C3K: View Feature Details"
+      },
+      {
+        "command": "v3c3k.validateStructure",
+        "title": "V3C3K: Validate Project Structure"
+      },
+      {
+        "command": "v3c3k.createStructure",
+        "title": "V3C3K: Create Project Structure"
+      },
+      {
+        "command": "v3c3k.updateStructure",
+        "title": "V3C3K: Update Project Structure"
       }
     ],
     "views": {
