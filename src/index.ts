@@ -2,15 +2,36 @@
 
 import { Command } from 'commander';
 import { ConfigManager } from './config/manager';
-import { FeatureStatus, FeatureValidation, AIModelConfig, AIModelProvider } from './types/feature';
+import { FeatureStatus, FeatureValidation, AIModelConfig, AIModelProvider, FeatureItem } from './types/feature';
 
 const program = new Command();
 const configManager = new ConfigManager();
 
+interface CLIResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+}
+
+function outputResponse<T>(response: CLIResponse<T>, json: boolean) {
+  if (json) {
+    console.log(JSON.stringify(response));
+  } else {
+    if (response.success) {
+      if (response.data) {
+        console.log('\n' + JSON.stringify(response.data, null, 2) + '\n');
+      }
+    } else {
+      console.error(`\nError: ${response.error}\n`);
+    }
+  }
+}
+
 program
   .name('v3c3k')
   .description('V3C3K - AI-assisted product validation tool')
-  .version('0.1.0');
+  .version('0.1.0')
+  .option('--json', 'Output in JSON format');
 
 program
   .command('add')
@@ -35,45 +56,45 @@ program
       try {
         aiModel = JSON.parse(options.aiModel);
       } catch (e) {
-        console.error('\nError: AI model configuration must be a valid JSON object\n');
+        outputResponse({ success: false, error: 'AI model configuration must be a valid JSON object' }, options.json);
         return;
       }
     }
     const feature = configManager.addFeature(options.title, options.description, dependencies, validation, aiModel);
-    console.log('Feature added:', feature);
+    outputResponse({ success: true, data: feature }, options.json);
   });
 
 program
   .command('list')
-  .description('List all feature items (titles only)')
-  .action(() => {
+  .description('List all feature items')
+  .action((options) => {
     const features = configManager.listFeatures();
-    console.log('\nFeatures:');
-    features.forEach(feature => {
-      console.log(`- ${feature.title} (${feature.status})`);
-    });
-    console.log(); // Add newline at end
+    if (options.json) {
+      outputResponse({ success: true, data: features }, true);
+    } else {
+      console.log('\nFeatures:');
+      features.forEach(feature => {
+        console.log(`- ${feature.title} (${feature.status})`);
+      });
+      console.log();
+    }
   });
 
 program
   .command('view')
   .description('View detailed information about features')
   .argument('[title]', 'Optional: Feature title to view specific feature')
-  .action((title) => {
+  .action((title, options) => {
     if (title) {
       const feature = configManager.getFeatureByTitle(title);
       if (feature) {
-        console.log('\nFeature Details:');
-        console.log(JSON.stringify(feature, null, 2));
-        console.log(); // Add newline at end
+        outputResponse({ success: true, data: feature }, options.json);
       } else {
-        console.error(`\nError: No feature found with title "${title}"\n`);
+        outputResponse({ success: false, error: `No feature found with title "${title}"` }, options.json);
       }
     } else {
       const features = configManager.listFeatures();
-      console.log('\nAll Features:');
-      console.log(JSON.stringify(features, null, 2));
-      console.log(); // Add newline at end
+      outputResponse({ success: true, data: features }, options.json);
     }
   });
 
@@ -85,17 +106,15 @@ program
   .action((options) => {
     const status = options.status as FeatureStatus;
     if (!['todo', 'in_progress', 'done'].includes(status)) {
-      console.error('\nError: Status must be one of: todo, in_progress, done\n');
+      outputResponse({ success: false, error: 'Status must be one of: todo, in_progress, done' }, options.json);
       return;
     }
 
     const updatedFeature = configManager.updateFeatureStatus(options.title, status);
     if (updatedFeature) {
-      console.log('\nFeature status updated:');
-      console.log(JSON.stringify(updatedFeature, null, 2));
-      console.log(); // Add newline at end
+      outputResponse({ success: true, data: updatedFeature }, options.json);
     } else {
-      console.error(`\nError: No feature found with title "${options.title}"\n`);
+      outputResponse({ success: false, error: `No feature found with title "${options.title}"` }, options.json);
     }
   });
 
@@ -108,11 +127,9 @@ program
     const dependencies = options.deps.split(',').map((id: string) => id.trim());
     const updatedFeature = configManager.updateFeatureDependencies(options.title, dependencies);
     if (updatedFeature) {
-      console.log('\nFeature dependencies updated:');
-      console.log(JSON.stringify(updatedFeature, null, 2));
-      console.log(); // Add newline at end
+      outputResponse({ success: true, data: updatedFeature }, options.json);
     } else {
-      console.error(`\nError: No feature found with title "${options.title}"\n`);
+      outputResponse({ success: false, error: `No feature found with title "${options.title}"` }, options.json);
     }
   });
 
@@ -130,11 +147,9 @@ program
     }
     const updatedFeature = configManager.updateFeatureValidation(options.title, validation);
     if (updatedFeature) {
-      console.log('\nFeature validation updated:');
-      console.log(JSON.stringify(updatedFeature, null, 2));
-      console.log(); // Add newline at end
+      outputResponse({ success: true, data: updatedFeature }, options.json);
     } else {
-      console.error(`\nError: No feature found with title "${options.title}"\n`);
+      outputResponse({ success: false, error: `No feature found with title "${options.title}"` }, options.json);
     }
   });
 
@@ -151,7 +166,7 @@ program
   .action((options) => {
     const provider = options.provider as AIModelProvider;
     if (!['anthropic', 'google', 'openai', 'deepseek', 'other'].includes(provider)) {
-      console.error('\nError: Provider must be one of: anthropic, google, openai, deepseek, other\n');
+      outputResponse({ success: false, error: 'Provider must be one of: anthropic, google, openai, deepseek, other' }, options.json);
       return;
     }
 
@@ -166,11 +181,9 @@ program
 
     const updatedFeature = configManager.updateFeatureAIModel(options.title, aiModel);
     if (updatedFeature) {
-      console.log('\nFeature AI model updated:');
-      console.log(JSON.stringify(updatedFeature, null, 2));
-      console.log(); // Add newline at end
+      outputResponse({ success: true, data: updatedFeature }, options.json);
     } else {
-      console.error(`\nError: No feature found with title "${options.title}"\n`);
+      outputResponse({ success: false, error: `No feature found with title "${options.title}"` }, options.json);
     }
   });
 
