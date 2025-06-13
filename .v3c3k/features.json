@@ -66,7 +66,7 @@
     "id": "58b600e3-f69a-4f67-8054-d2c09f7be2a9",
     "title": "VSCode Extension: Basic Feature Management",
     "description": "Implement core VSCode extension features: 1. Add Feature command - Input form for feature title and description - Integration with v3c3k CLI add command - Success/error notifications 2. List Features command - Display features in a tree view - Show feature status and metadata - Refresh capability 3. View Feature command - Detailed feature view - Show dependencies - Show validation status Technical Requirements: - TypeScript implementation - VSCode extension API integration - Error handling - Progress indicators",
-    "status": "completed",
+    "status": "done",
     "createdAt": "2025-06-13T03:26:16.742Z",
     "updatedAt": "2025-06-13T03:26:16.742Z",
     "dependencies": []
@@ -75,7 +75,7 @@
     "id": "fe972f65-8373-4f32-8d8f-b60ceefcbca1",
     "title": "VSCode Extension: Feature Validation UI",
     "description": "Implement validation UI features: 1. Validation Status View - Real-time validation status - Visual indicators for pass/fail - Detailed error messages 2. Validation Configuration - UI for setting validation rules - Integration with v3c3k validation command - Save/load validation presets 3. Validation History - Track validation runs - Show historical results - Compare validation runs Technical Requirements: - WebView implementation - Real-time updates - Error handling - Progress tracking",
-    "status": "completed",
+    "status": "done",
     "createdAt": "2025-06-13T03:26:24.176Z",
     "updatedAt": "2025-06-13T03:26:24.176Z",
     "dependencies": []
@@ -84,7 +84,7 @@
     "id": "42b83ee5-94bb-4818-ba12-1833a56056f5",
     "title": "VSCode Extension: AI Integration",
     "description": "Implement AI integration features: 1. AI Model Configuration - UI for selecting AI provider - Model selection - API key management 2. AI-Assisted Validation - Integration with v3c3k AI features - Real-time AI feedback - Validation suggestions 3. AI Insights - Feature analysis - Dependency suggestions - Validation strategy recommendations Technical Requirements: - Secure API key storage - Error handling - Progress indicators - Rate limiting",
-    "status": "completed",
+    "status": "done",
     "createdAt": "2025-06-13T03:26:32.724Z",
     "updatedAt": "2025-06-13T03:26:32.724Z",
     "dependencies": []
