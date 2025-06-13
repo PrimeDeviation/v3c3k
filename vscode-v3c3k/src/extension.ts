@@ -1,10 +1,13 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { ApiKeyManager } from './apiKeyManager';
 
 const execAsync = promisify(exec);
 
 export async function activate(context: vscode.ExtensionContext) {
+    const apiKeyManager = ApiKeyManager.getInstance(context);
+
     // Check if v3c3k CLI is installed
     try {
         await execAsync('v3c3k --version');
@@ -32,7 +35,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }
 
     // Register commands
-    let disposable = vscode.commands.registerCommand('v3c3k.checkCLI', async () => {
+    let checkCLI = vscode.commands.registerCommand('v3c3k.checkCLI', async () => {
         try {
             const { stdout } = await execAsync('v3c3k --version');
             vscode.window.showInformationMessage(`v3c3k CLI version: ${stdout.trim()}`);
@@ -41,7 +44,35 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    context.subscriptions.push(disposable);
+    let setApiKey = vscode.commands.registerCommand('v3c3k.setApiKey', async () => {
+        const model = await vscode.window.showQuickPick(['gpt-4', 'gpt-3.5-turbo'], {
+            placeHolder: 'Select AI model'
+        });
+        if (!model) return;
+
+        const key = await vscode.window.showInputBox({
+            prompt: `Enter API key for ${model}`,
+            password: true
+        });
+        if (!key) return;
+
+        await apiKeyManager.setApiKey(model, key);
+        vscode.window.showInformationMessage(`API key for ${model} saved successfully`);
+    });
+
+    let checkApiKey = vscode.commands.registerCommand('v3c3k.checkApiKey', async () => {
+        const model = await vscode.window.showQuickPick(['gpt-4', 'gpt-3.5-turbo'], {
+            placeHolder: 'Select AI model'
+        });
+        if (!model) return;
+
+        const hasKey = await apiKeyManager.hasApiKey(model);
+        vscode.window.showInformationMessage(
+            hasKey ? `API key for ${model} is configured` : `No API key found for ${model}`
+        );
+    });
+
+    context.subscriptions.push(checkCLI, setApiKey, checkApiKey);
 }
 
 export function deactivate() {} 
